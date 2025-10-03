@@ -71,3 +71,29 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+# How to Visit Your Supabase Project Database
+
+Follow these step-by-step instructions to access and manage your connected Supabase project database:
+
+1. Open your web browser and go to the Supabase website at https://supabase.com.
+
+2. Click on the "Login" button at the top-right corner of the homepage.
+
+3. Enter your registered email and password credentials associated with your Supabase account and sign in.
+
+4. After signing in, you will see the Supabase Dashboard displaying your projects.
+
+5. Select the project that is connected to your app by clicking on its project name.
+
+6. Within the project dashboard, navigate to the "Database" section from the sidebar menu.
+
+7. Here you can explore your database schema, tables, and data for your project.
+
+8. To view or edit translation history records, find the relevant table (e.g., "translation_history") and click on it.
+
+9. You may run SQL queries or browse table data directly via the Supabase web interface.
+
+10. To manage database settings, click on "Settings" in the sidebar and explore connections, API keys, and other configurations.
+
+11. When finished, you may log out securely from your dashboard.

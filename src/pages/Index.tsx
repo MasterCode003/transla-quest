@@ -1,7 +1,6 @@
 import { Languages } from "lucide-react";
 import { Translator } from "@/components/Translator";
 import { TranslationHistory } from "@/components/TranslationHistory";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
@@ -21,7 +20,6 @@ const Index = () => {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <ThemeToggle />
             </div>
           </div>
         </div>

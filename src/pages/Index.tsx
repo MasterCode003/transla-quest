@@ -1,10 +1,12 @@
 import { Languages } from "lucide-react";
 import { Translator } from "@/components/Translator";
 import { TranslationHistory } from "@/components/TranslationHistory";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-[image:var(--gradient-secondary)]">
+    <div className="min-h-screen bg-[image:var(--gradient-secondary)] dark:bg-[image:var(--gradient-secondary)]">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-6">
@@ -12,11 +14,14 @@ const Index = () => {
             <div className="p-2 rounded-lg bg-[image:var(--gradient-primary)]">
               <Languages className="h-6 w-6 text-primary-foreground" />
             </div>
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-bold text-foreground">Multi-Language Translator</h1>
               <p className="text-sm text-muted-foreground">
                 Translate text across 20+ languages instantly
               </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
             </div>
           </div>
         </div>
@@ -37,7 +42,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border mt-16 bg-card/50">
         <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-          Powered by Lovable AI • Supports 20+ Languages
+          Powered by Qoder • Supports 20+ Languages
         </div>
       </footer>
     </div>

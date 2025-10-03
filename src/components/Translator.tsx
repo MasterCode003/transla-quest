@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
@@ -6,6 +6,13 @@ import { ArrowLeftRight, Loader2 } from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Translator = () => {
   const [sourceText, setSourceText] = useState("");
@@ -13,6 +20,7 @@ export const Translator = () => {
   const [sourceLanguage, setSourceLanguage] = useState("en");
   const [targetLanguage, setTargetLanguage] = useState("es");
   const [isTranslating, setIsTranslating] = useState(false);
+  const [selectedService, setSelectedService] = useState("lovable");
 
   const handleSwapLanguages = () => {
     const tempLang = sourceLanguage;
@@ -27,6 +35,31 @@ export const Translator = () => {
   const handleClear = () => {
     setSourceText("");
     setTranslatedText("");
+  };
+
+  const saveTranslationToHistory = async (source: string, translated: string, sourceLang: string, targetLang: string) => {
+    try {
+      const { error: insertError } = await supabase
+        .from("translation_history")
+        .insert({
+          source_text: source,
+          translated_text: translated,
+          source_language: sourceLang,
+          target_language: targetLang,
+        });
+
+      if (insertError) {
+        console.error("Error saving to history:", insertError);
+        toast.error("Failed to save translation to history");
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error saving to history:", error);
+      toast.error("Failed to save translation to history");
+      return false;
+    }
   };
 
   const handleTranslate = async () => {
@@ -47,6 +80,7 @@ export const Translator = () => {
           text: sourceText,
           sourceLanguage,
           targetLanguage,
+          service: selectedService
         },
       });
 
@@ -59,24 +93,42 @@ export const Translator = () => {
 
       setTranslatedText(data.translatedText);
 
-      // Save to history
-      const { error: insertError } = await supabase
-        .from("translation_history")
-        .insert({
-          source_text: sourceText,
-          translated_text: data.translatedText,
-          source_language: sourceLanguage,
-          target_language: targetLanguage,
-        });
+      // Save to history with retry mechanism
+      const saveSuccess = await saveTranslationToHistory(
+        sourceText,
+        data.translatedText,
+        sourceLanguage,
+        targetLanguage
+      );
 
-      if (insertError) {
-        console.error("Error saving to history:", insertError);
+      if (saveSuccess) {
+        toast.success("Translation completed and saved to history!");
+      } else {
+        // Try to save again as a backup
+        setTimeout(async () => {
+          const retrySuccess = await saveTranslationToHistory(
+            sourceText,
+            data.translatedText,
+            sourceLanguage,
+            targetLanguage
+          );
+          if (!retrySuccess) {
+            toast.warning("Translation completed but failed to save to history. Please check your connection.");
+          }
+        }, 2000);
       }
-
-      toast.success("Translation completed!");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Translation error:", error);
-      toast.error("Translation failed. Please try again.");
+      // Handle specific error cases
+      if (error.message && error.message.includes("API key")) {
+        toast.error("Invalid API key. Please check your API key settings.");
+      } else if (error.message && error.message.includes("401")) {
+        toast.error("Authentication failed. Please verify your API key.");
+      } else if (error.message && error.message.includes("429")) {
+        toast.error("Rate limit exceeded. Please try again later.");
+      } else {
+        toast.error("Translation failed. Please try again.");
+      }
     } finally {
       setIsTranslating(false);
     }
@@ -116,6 +168,20 @@ export const Translator = () => {
             className="min-h-[200px] resize-none bg-muted border-border"
           />
         </div>
+      </div>
+
+      {/* Service Selection */}
+      <div className="mt-4">
+        <label className="text-sm font-medium mb-2 block">Translation Service</label>
+        <Select value={selectedService} onValueChange={setSelectedService}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Select AI service" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="lovable">Lovable AI</SelectItem>
+            <SelectItem value="openai">ChatGPT</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Action Buttons */}

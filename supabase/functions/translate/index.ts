@@ -31,44 +31,61 @@ serve(async (req) => {
 
 Text to translate: ${text}`;
 
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: [
-            { role: "system", content: "You are a professional translator. Translate text accurately while preserving the original meaning and tone." },
-            { role: "user", content: prompt }
-          ],
-        }),
-      });
+      try {
+        const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [
+              { role: "system", content: "You are a professional translator. Translate text accurately while preserving the original meaning and tone." },
+              { role: "user", content: prompt }
+            ],
+          }),
+        });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("AI gateway error:", response.status, errorText);
-        
-        if (response.status === 429) {
-          return new Response(
-            JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
-            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-        
-        if (response.status === 402) {
-          return new Response(
-            JSON.stringify({ error: "Payment required. Please add credits to your workspace." }),
-            { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("AI gateway error:", response.status, errorText);
+          
+          if (response.status === 429) {
+            return new Response(
+              JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
+              { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+          
+          if (response.status === 402) {
+            return new Response(
+              JSON.stringify({ error: "Payment required. Please add credits to your workspace." }),
+              { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+
+          // Handle network connectivity issues
+          if (response.status === 502 || response.status === 503 || response.status === 504) {
+            return new Response(
+              JSON.stringify({ error: "Service temporarily unavailable. Please try again later or use ChatGPT service." }),
+              { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+
+          throw new Error(`AI gateway error: ${response.status}`);
         }
 
-        throw new Error(`AI gateway error: ${response.status}`);
+        const data = await response.json();
+        translatedText = data.choices[0].message.content.trim();
+      } catch (fetchError) {
+        // Handle network errors specifically
+        console.error("Network error when connecting to Lovable AI:", fetchError);
+        return new Response(
+          JSON.stringify({ error: "Unable to connect to Lovable AI service. Please check your internet connection or use ChatGPT service." }),
+          { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
-
-      const data = await response.json();
-      translatedText = data.choices[0].message.content.trim();
     } else if (service === 'openai') {
       // Use the hardcoded ChatGPT API key
       const prompt = `Translate the following text from ${sourceLanguage} to ${targetLanguage}. Only return the translated text, nothing else.

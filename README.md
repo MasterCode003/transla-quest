@@ -70,6 +70,21 @@ npm run dev
 - Click on "New codespace" to launch a new Codespace environment.
 - Edit files directly within the Codespace and commit and push your changes once you're done.
 
+## Troubleshooting Common Issues
+
+### Grammar Checker History Table Missing
+If you encounter the error "Could not find the table 'public.grammar_checker_history' in the schema cache", follow these steps:
+
+1. Check the detailed guide in [FIX_GRAMMAR_HISTORY.md](FIX_GRAMMAR_HISTORY.md)
+2. Run the PowerShell script: `supabase/reset_grammar_history.ps1`
+3. Ensure Docker is running for local development
+4. Apply migrations with: `npx supabase migration up`
+
+### Lovable AI Service Connection Issues
+If you're having trouble connecting to the Lovable AI service:
+1. Check the troubleshooting guide in [LOVABLE_AI_TROUBLESHOOTING.md](LOVABLE_AI_TROUBLESHOOTING.md)
+2. Try using ChatGPT as an alternative service
+
 ## What technologies are used for this project?
 
 This project is built with:

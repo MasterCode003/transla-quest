@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Trash2, SpellCheck, Clock, Languages } from "lucide-react";
+import { Trash2, SpellCheck, Clock, Languages, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
@@ -29,10 +29,16 @@ export const GrammarCheckerHistory = () => {
       if (error) {
         console.error("Error fetching grammar check history:", error);
         // Handle different types of errors
-        if (error.message.includes("grammar_checker_history") && error.message.includes("not found")) {
-          toast.error("Grammar checker history table not found. Please contact the administrator to set up the database.");
+        if (error.code === "PGRST205" || (error.message.includes("grammar_checker_history") && error.message.includes("not found"))) {
+          toast.error("Grammar checker history table not found", {
+            description: "The database table is missing. Please contact the administrator or check the documentation at FIX_GRAMMAR_HISTORY.md",
+            duration: 10000
+          });
         } else {
-          toast.error("Failed to load grammar check history: " + error.message);
+          toast.error("Failed to load grammar check history", {
+            description: error.message,
+            duration: 5000
+          });
         }
         // Set history to empty array so the component still renders
         setHistory([]);
@@ -41,7 +47,10 @@ export const GrammarCheckerHistory = () => {
       setHistory(data || []);
     } catch (error: any) {
       console.error("Error fetching grammar check history:", error);
-      toast.error("Failed to load grammar check history: " + (error.message || "Unknown error"));
+      toast.error("Failed to load grammar check history", {
+        description: error.message || "Unknown error occurred",
+        duration: 5000
+      });
       // Set history to empty array so the component still renders
       setHistory([]);
     } finally {
@@ -61,9 +70,12 @@ export const GrammarCheckerHistory = () => {
       
       setHistory([]);
       toast.success("Grammar check history cleared");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error clearing grammar check history:", error);
-      toast.error("Failed to clear grammar check history");
+      toast.error("Failed to clear grammar check history", {
+        description: error.message || "Please try again later",
+        duration: 5000
+      });
     }
   };
 

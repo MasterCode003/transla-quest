@@ -39,11 +39,19 @@ export const TranslationHistory = () => {
         .order("created_at", { ascending: false })
         .limit(20);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error loading history:", error);
+        toast.error("Failed to load translation history: " + error.message);
+        // Set history to empty array so the component still renders
+        setHistory([]);
+        return;
+      }
       setHistory(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error loading history:", error);
-      toast.error("Failed to load translation history");
+      toast.error("Failed to load translation history: " + (error.message || "Unknown error"));
+      // Set history to empty array so the component still renders
+      setHistory([]);
     } finally {
       setIsLoading(false);
     }

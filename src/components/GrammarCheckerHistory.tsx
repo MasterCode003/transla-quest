@@ -28,17 +28,22 @@ export const GrammarCheckerHistory = () => {
 
       if (error) {
         console.error("Error fetching grammar check history:", error);
-        toast.error("Failed to load grammar check history: " + error.message);
-        // If it's a 404 error, the table might not exist
+        // Handle different types of errors
         if (error.message.includes("404") || error.message.includes("not found")) {
-          toast.error("Grammar checker history table not found. Please run database migrations.");
+          toast.error("Grammar checker history table not found. Please check database setup.");
+        } else {
+          toast.error("Failed to load grammar check history: " + error.message);
         }
-        throw error;
+        // Set history to empty array so the component still renders
+        setHistory([]);
+        return;
       }
       setHistory(data || []);
     } catch (error: any) {
       console.error("Error fetching grammar check history:", error);
       toast.error("Failed to load grammar check history: " + (error.message || "Unknown error"));
+      // Set history to empty array so the component still renders
+      setHistory([]);
     } finally {
       setLoading(false);
     }

@@ -52,6 +52,15 @@ We've created migration files that ensure the table is properly set up with all 
    npx supabase functions deploy
    ```
 
+### Direct Database Fix (Alternative Approach)
+
+If you cannot use the Supabase CLI, you can directly create the table in your Supabase dashboard:
+
+1. Go to your Supabase project dashboard
+2. Navigate to SQL Editor
+3. Copy and run the SQL commands from [DIRECT_DATABASE_FIX.sql](DIRECT_DATABASE_FIX.sql)
+4. Refresh the schema cache in the Table Editor
+
 ## What the Fix Does
 
 1. Creates the `grammar_checker_history` table if it doesn't exist:
@@ -79,9 +88,11 @@ We've created migration files that ensure the table is properly set up with all 
 
 - Added migration file: `supabase/migrations/20251006190000_add_grammar_checker_history_table.sql`
 - Added fix migration file: `supabase/migrations/20251006200000_fix_grammar_checker_history_table.sql`
+- Added comprehensive migration file: `supabase/migrations/20251006210000_ensure_grammar_checker_history_table.sql`
 - Improved error handling in the frontend components
 - Updated the clear history function to use proper Supabase syntax
 - Created PowerShell script for Windows users: `supabase/reset_grammar_history.ps1`
+- Created direct database fix script: `DIRECT_DATABASE_FIX.sql`
 
 ## If the Problem Persists
 

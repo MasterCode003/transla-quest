@@ -10,6 +10,11 @@ try {
 } catch {
     Write-Host "Error: Supabase CLI not found." -ForegroundColor Red
     Write-Host "Please install the Supabase CLI by running: npm install -g supabase" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "ALTERNATIVE: You can manually create the table using the SQL script:" -ForegroundColor Yellow
+    Write-Host "1. Open DIRECT_DATABASE_FIX.sql in this directory" -ForegroundColor Yellow
+    Write-Host "2. Copy the contents" -ForegroundColor Yellow
+    Write-Host "3. Paste and run in your Supabase SQL Editor" -ForegroundColor Yellow
     exit 1
 }
 
@@ -37,6 +42,9 @@ try {
         Write-Host "Docker not available. For remote deployment:" -ForegroundColor Yellow
         Write-Host "1. Link your project: npx supabase link --project-ref YOUR_PROJECT_ID" -ForegroundColor Yellow
         Write-Host "2. Apply migrations: npx supabase migration up" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "ALTERNATIVE: Direct database fix available" -ForegroundColor Yellow
+        Write-Host "Run the SQL commands in DIRECT_DATABASE_FIX.sql directly in your Supabase dashboard" -ForegroundColor Yellow
     }
 } catch {
     Write-Host "Error applying migrations: $_" -ForegroundColor Red
@@ -45,6 +53,12 @@ try {
     Write-Host "1. Check your Supabase project configuration" -ForegroundColor Yellow
     Write-Host "2. Verify your Supabase access token: npx supabase login" -ForegroundColor Yellow
     Write-Host "3. For remote projects, link your project first" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "ALTERNATIVE SOLUTION:" -ForegroundColor Yellow
+    Write-Host "You can manually create the table using the SQL script:" -ForegroundColor Yellow
+    Write-Host "1. Open DIRECT_DATABASE_FIX.sql in this directory" -ForegroundColor Yellow
+    Write-Host "2. Copy the contents" -ForegroundColor Yellow
+    Write-Host "3. Paste and run in your Supabase SQL Editor" -ForegroundColor Yellow
     exit 1
 }
 
@@ -58,4 +72,7 @@ if ($dockerAvailable) {
 } else {
     Write-Host "For local development, please install and start Docker Desktop." -ForegroundColor Yellow
     Write-Host "Then run this script again." -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "For remote deployment, you can now redeploy your functions:" -ForegroundColor Cyan
+    Write-Host "npx supabase functions deploy" -ForegroundColor Yellow
 }

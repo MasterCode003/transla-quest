@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      grammar_checker_history: {
+        Row: {
+          checked_text: string
+          created_at: string
+          id: string
+          language: string
+          original_text: string
+          suggestions: Json | null
+        }
+        Insert: {
+          checked_text: string
+          created_at?: string
+          id?: string
+          language: string
+          original_text: string
+          suggestions?: Json | null
+        }
+        Update: {
+          checked_text?: string
+          created_at?: string
+          id?: string
+          language?: string
+          original_text?: string
+          suggestions?: Json | null
+        }
+        Relationships: []
+      }
       translation_history: {
         Row: {
           created_at: string
@@ -40,67 +67,6 @@ export type Database = {
           translated_text?: string
         }
         Relationships: []
-      }
-      grammar_checker_history: {
-        Row: {
-          created_at: string
-          id: string
-          original_text: string
-          checked_text: string
-          language: string
-          suggestions: Json | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          original_text: string
-          checked_text: string
-          language: string
-          suggestions?: Json | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          original_text?: string
-          checked_text?: string
-          language?: string
-          suggestions?: Json | null
-        }
-        Relationships: []
-      }
-      api_keys: {
-        Row: {
-          id: string
-          user_id: string | null
-          service_name: string
-          api_key: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          user_id?: string | null
-          service_name: string
-          api_key: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string | null
-          service_name?: string
-          api_key?: string
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "api_keys_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
       }
     }
     Views: {

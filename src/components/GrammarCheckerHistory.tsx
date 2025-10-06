@@ -26,11 +26,19 @@ export const GrammarCheckerHistory = () => {
         .order("created_at", { ascending: false })
         .limit(50);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching grammar check history:", error);
+        toast.error("Failed to load grammar check history: " + error.message);
+        // If it's a 404 error, the table might not exist
+        if (error.message.includes("404") || error.message.includes("not found")) {
+          toast.error("Grammar checker history table not found. Please run database migrations.");
+        }
+        throw error;
+      }
       setHistory(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching grammar check history:", error);
-      toast.error("Failed to load grammar check history");
+      toast.error("Failed to load grammar check history: " + (error.message || "Unknown error"));
     } finally {
       setLoading(false);
     }
@@ -38,10 +46,11 @@ export const GrammarCheckerHistory = () => {
 
   const clearHistory = async () => {
     try {
+      // Delete all records from the grammar_checker_history table
       const { error } = await supabase
         .from("grammar_checker_history")
         .delete()
-        .neq("id", "");
+        .gte("created_at", new Date(0).toISOString());
 
       if (error) throw error;
       

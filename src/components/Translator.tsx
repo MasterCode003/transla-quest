@@ -80,14 +80,14 @@ export const Translator = () => {
 
       if (insertError) {
         console.error("Error saving to translation history:", insertError);
-        toast.error("Failed to save translation to history");
+        toast.error("Failed to save translation to history: " + insertError.message);
         return false;
       }
       
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving to translation history:", error);
-      toast.error("Failed to save translation to history");
+      toast.error("Failed to save translation to history: " + (error.message || "Unknown error"));
       return false;
     }
   };
@@ -106,14 +106,14 @@ export const Translator = () => {
 
       if (insertError) {
         console.error("Error saving to grammar check history:", insertError);
-        toast.error("Failed to save grammar check to history");
+        toast.error("Failed to save grammar check to history: " + insertError.message);
         return false;
       }
       
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving to grammar check history:", error);
-      toast.error("Failed to save grammar check to history");
+      toast.error("Failed to save grammar check to history: " + (error.message || "Unknown error"));
       return false;
     }
   };

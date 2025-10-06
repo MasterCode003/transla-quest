@@ -15,6 +15,27 @@ export const GrammarCheckerHistory = () => {
 
   useEffect(() => {
     fetchHistory();
+
+    // Subscribe to realtime updates
+    const channel = supabase
+      .channel('grammar-history-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'grammar_checker_history'
+        },
+        () => {
+          // Refresh history when new entry is added
+          fetchHistory();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchHistory = async () => {

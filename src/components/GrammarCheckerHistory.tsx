@@ -29,8 +29,8 @@ export const GrammarCheckerHistory = () => {
       if (error) {
         console.error("Error fetching grammar check history:", error);
         // Handle different types of errors
-        if (error.message.includes("404") || error.message.includes("not found")) {
-          toast.error("Grammar checker history table not found. Please check database setup.");
+        if (error.message.includes("grammar_checker_history") && error.message.includes("not found")) {
+          toast.error("Grammar checker history table not found. Please contact the administrator to set up the database.");
         } else {
           toast.error("Failed to load grammar check history: " + error.message);
         }

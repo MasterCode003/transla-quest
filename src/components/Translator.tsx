@@ -106,7 +106,12 @@ export const Translator = () => {
 
       if (insertError) {
         console.error("Error saving to grammar check history:", insertError);
-        toast.error("Failed to save grammar check to history: " + insertError.message);
+        // Provide specific error message for table not found
+        if (insertError.message.includes("grammar_checker_history") && insertError.message.includes("not found")) {
+          toast.error("Grammar checker history table not found. Please contact the administrator to set up the database.");
+        } else {
+          toast.error("Failed to save grammar check to history: " + insertError.message);
+        }
         return false;
       }
       

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { History, Loader2, Trash2 } from "lucide-react";
+import { History, Loader2, Trash2, Languages, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import {
@@ -110,6 +110,8 @@ export const TranslationHistory = () => {
       tr: "Turkish",
       vi: "Vietnamese",
       th: "Thai",
+      fil: "Filipino",
+      hil: "Visayan",
     };
     return languageMap[code] || code;
   };
@@ -146,62 +148,73 @@ export const TranslationHistory = () => {
 
   return (
     <>
-      <Card className="w-full max-w-md mx-auto p-6 bg-card shadow-[var(--shadow-medium)] border-border">
-        <div className="flex items-center gap-2 mb-4">
-          <History className="h-5 w-5 text-primary" />
-          <h2 className="text-xl font-semibold text-foreground">Translation History</h2>
-        </div>
-
-        <ScrollArea className="h-[600px] pr-4">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            </div>
-          ) : history.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">
-              No translation history yet
-            </p>
-          ) : (
-            <div className="space-y-4">
-              {history.map((item) => (
-                <div
-                  key={item.id}
-                  className="p-4 rounded-lg bg-secondary/50 border border-border hover:bg-secondary transition-colors relative pr-10"
-                >
-                  <button
-                    onClick={() => handleDeleteClick(item)}
-                    className="absolute top-3 right-3 p-1 rounded-full hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors"
-                    aria-label="Delete translation"
+      <Card className="bg-card border-border shadow-lg">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-lg font-medium flex items-center gap-2">
+            <History className="h-5 w-5 text-primary" />
+            Translation History
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-[400px] pr-4">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : history.length === 0 ? (
+              <div className="text-center py-8">
+                <History className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground">No translation history yet.</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Your translations will appear here.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {history.map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 rounded-lg border border-border bg-muted/30 hover:bg-muted/50 transition-colors relative pr-10"
                   >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                    <span className="font-medium text-primary">
-                      {getLanguageName(item.source_language)}
-                    </span>
-                    <span>→</span>
-                    <span className="font-medium text-accent">
-                      {getLanguageName(item.target_language)}
-                    </span>
-                    <span className="ml-auto text-xs">
-                      {format(new Date(item.created_at), "MMM d, h:mm a")}
-                    </span>
+                    <button
+                      onClick={() => handleDeleteClick(item)}
+                      className="absolute top-3 right-3 p-1 rounded-full hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors"
+                      aria-label="Delete translation"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-2">
+                        <Languages className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-1 rounded">
+                          {getLanguageName(item.source_language)} → {getLanguageName(item.target_language)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        <span>
+                          {format(new Date(item.created_at), "MMM d, h:mm a")}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="bg-background p-2 rounded border">
+                        <p className="line-clamp-2">
+                          {item.source_text}
+                        </p>
+                      </div>
+                      <div className="bg-background p-2 rounded border">
+                        <p className="line-clamp-2">
+                          {item.translated_text}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-2 text-sm">
-                    <p className="text-foreground">
-                      <span className="font-medium">Source: </span>
-                      {item.source_text}
-                    </p>
-                    <p className="text-foreground">
-                      <span className="font-medium">Translation: </span>
-                      {item.translated_text}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </ScrollArea>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+        </CardContent>
       </Card>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

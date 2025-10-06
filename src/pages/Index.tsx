@@ -1,38 +1,70 @@
-import { Languages } from "lucide-react";
+import { Languages, SpellCheck } from "lucide-react";
 import { Translator } from "@/components/Translator";
 import { TranslationHistory } from "@/components/TranslationHistory";
+import { GrammarCheckerHistory } from "@/components/GrammarCheckerHistory";
 import { Button } from "@/components/ui/button";
+import { Link, useLocation } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Index = () => {
+  const location = useLocation();
+  const isGrammarMode = location.pathname.includes('/grammar');
+
   return (
     <div className="min-h-screen bg-[image:var(--gradient-secondary)] dark:bg-[image:var(--gradient-secondary)]">
       {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[image:var(--gradient-primary)]">
-              <Languages className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-foreground">Multi-Language Translator</h1>
-              <p className="text-sm text-muted-foreground">
-                Translate text across 20+ languages instantly
-              </p>
+      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-[image:var(--gradient-primary)]">
+                {isGrammarMode ? (
+                  <SpellCheck className="h-6 w-6 text-primary-foreground" />
+                ) : (
+                  <Languages className="h-6 w-6 text-primary-foreground" />
+                )}
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {isGrammarMode ? "Grammar Checker" : "Multi-Language Translator"}
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {isGrammarMode 
+                    ? "Check grammar for English, Filipino, and Visayan texts" 
+                    : "Translate text across languages instantly"}
+                </p>
+              </div>
             </div>
             <div className="flex items-center gap-2">
+              <Button variant={isGrammarMode ? "outline" : "default"} asChild className="flex-1">
+                <Link to="/translate">
+                  <Languages className="h-4 w-4 mr-2" />
+                  Translate
+                </Link>
+              </Button>
+              <Button variant={isGrammarMode ? "default" : "outline"} asChild className="flex-1">
+                <Link to="/grammar">
+                  <SpellCheck className="h-4 w-4 mr-2" />
+                  Grammar Check
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-6">
         <div className="grid lg:grid-cols-[1fr,400px] gap-6">
           <div className="flex flex-col gap-6">
             <Translator />
           </div>
-          <div className="lg:sticky lg:top-8 self-start">
-            <TranslationHistory />
+          <div className="lg:sticky lg:top-24 self-start">
+            <Card className="bg-transparent border-0 shadow-none p-0">
+              <CardContent className="p-0">
+                {isGrammarMode ? <GrammarCheckerHistory /> : <TranslationHistory />}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>
@@ -40,7 +72,8 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border mt-16 bg-card/50">
         <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-          Powered by Qoder • Supports 20+ Languages
+          <p>Powered by Qoder • Supports English, Filipino, and Visayan languages</p>
+          <p className="mt-1">AI-powered translation and grammar checking</p>
         </div>
       </footer>
     </div>

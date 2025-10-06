@@ -15,21 +15,20 @@ serve(async (req) => {
   }
 
   try {
-    const { text, sourceLanguage, targetLanguage, service = 'lovable' } = await req.json();
+    const { text, sourceLanguage, targetLanguage, service = 'lovable', prompt, mode = 'translate' } = await req.json();
     
-    console.log('Translation request:', { text, sourceLanguage, targetLanguage, service });
+    console.log('Processing request:', { text, sourceLanguage, targetLanguage, service, mode });
 
-    let translatedText = '';
+    let processedText = '';
+
+    // Use provided prompt or generate a default one
+    const finalPrompt = prompt || getDefaultPrompt(text, sourceLanguage, targetLanguage, mode);
 
     if (service === 'lovable') {
       const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
       if (!LOVABLE_API_KEY) {
         throw new Error("LOVABLE_API_KEY is not configured");
       }
-
-      const prompt = `Translate the following text from ${sourceLanguage} to ${targetLanguage}. Only return the translated text, nothing else.
-
-Text to translate: ${text}`;
 
       try {
         const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -41,8 +40,8 @@ Text to translate: ${text}`;
           body: JSON.stringify({
             model: "google/gemini-2.5-flash",
             messages: [
-              { role: "system", content: "You are a professional translator. Translate text accurately while preserving the original meaning and tone." },
-              { role: "user", content: prompt }
+              { role: "system", content: getSystemPrompt(mode) },
+              { role: "user", content: finalPrompt }
             ],
           }),
         });
@@ -77,7 +76,7 @@ Text to translate: ${text}`;
         }
 
         const data = await response.json();
-        translatedText = data.choices[0].message.content.trim();
+        processedText = data.choices[0].message.content.trim();
       } catch (fetchError) {
         // Handle network errors specifically
         console.error("Network error when connecting to Lovable AI:", fetchError);
@@ -88,10 +87,6 @@ Text to translate: ${text}`;
       }
     } else if (service === 'openai') {
       // Use the hardcoded ChatGPT API key
-      const prompt = `Translate the following text from ${sourceLanguage} to ${targetLanguage}. Only return the translated text, nothing else.
-
-Text to translate: ${text}`;
-
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -101,8 +96,8 @@ Text to translate: ${text}`;
         body: JSON.stringify({
           model: "gpt-3.5-turbo",
           messages: [
-            { role: "system", content: "You are a professional translator. Translate text accurately while preserving the original meaning and tone." },
-            { role: "user", content: prompt }
+            { role: "system", content: getSystemPrompt(mode) },
+            { role: "user", content: finalPrompt }
           ],
         }),
       });
@@ -122,31 +117,66 @@ Text to translate: ${text}`;
       }
 
       const data = await response.json();
-      translatedText = data.choices[0].message.content.trim();
+      processedText = data.choices[0].message.content.trim();
+    } else if (service === 'gemini') {
+      return new Response(
+        JSON.stringify({ error: "Gemini service requires API key configuration. Please contact administrator." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     } else {
       // For other services, we'll return a placeholder since we're focusing on ChatGPT and Lovable AI
-      translatedText = `Translated with ${getServiceName(service)}: ${text} (${sourceLanguage} → ${targetLanguage})`;
+      processedText = `Processed with ${getServiceName(service)}: ${text} (${sourceLanguage} → ${targetLanguage})`;
     }
 
-    console.log('Translation successful:', translatedText);
+    console.log('Processing successful:', processedText);
 
     return new Response(
-      JSON.stringify({ translatedText }),
+      JSON.stringify({ translatedText: processedText }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Translation error:", error);
+    console.error("Processing error:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Translation failed" }),
+      JSON.stringify({ error: error instanceof Error ? error.message : "Processing failed" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
 
+function getSystemPrompt(mode: string) {
+  if (mode === 'grammar') {
+    return "You are a prompt engineer for a grammar checker AI specializing in English, Visayan, and Filipino. Analyze the input and provide grammar corrections and suggestions. Identify grammatical errors, suggest improvements, and explain any corrections made. Format your response clearly with corrections marked and explanations provided. Only return the corrected text with explanations, nothing else.";
+  } else {
+    return "You are a professional translator specializing in English, Filipino, and Visayan languages. Translate text accurately while preserving the original meaning, tone, and cultural context. Only return the translated text, nothing else.";
+  }
+}
+
+function getDefaultPrompt(text: string, sourceLanguage: string, targetLanguage: string, mode: string) {
+  const languageMap: Record<string, string> = {
+    "en": "English",
+    "fil": "Filipino",
+    "hil": "Visayan"
+  };
+  
+  const sourceLangName = languageMap[sourceLanguage] || sourceLanguage;
+  const targetLangName = languageMap[targetLanguage] || targetLanguage;
+
+  if (mode === 'grammar') {
+    return `Analyze the following ${sourceLangName} text and provide grammar corrections and suggestions. Identify grammatical errors, suggest improvements, and explain any corrections made. Format your response clearly with corrections marked and explanations provided.
+
+Text to check: ${text}`;
+  } else {
+    return `Translate the following text from ${sourceLangName} to ${targetLangName}. Only return the translated text, nothing else.
+
+Text to translate: ${text}`;
+  }
+}
+
 function getServiceName(serviceId: string) {
   const serviceMap: Record<string, string> = {
     "lovable": "Lovable AI",
-    "openai": "ChatGPT"
+    "openai": "ChatGPT",
+    "gemini": "Gemini"
   };
   return serviceMap[serviceId] || serviceId;
 }

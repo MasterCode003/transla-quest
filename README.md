@@ -4,6 +4,26 @@
 
 **URL**: https://lovable.dev/projects/0d8e277f-a813-405d-a387-072b11e78640
 
+## New Features
+
+### Enhanced Translation and Grammar Checking
+This project now includes dual-mode functionality:
+- **Translation Mode**: Translate between English, Filipino, and Visayan languages
+- **Grammar Check Mode**: Analyze text for grammatical errors and receive corrections
+
+### Separate History Tracking
+- **Translation History**: Tracks all translation requests
+- **Grammar Check History**: Tracks all grammar checking requests (NEW)
+- Each mode has its own dedicated history panel
+
+### Multiple AI Service Support
+- **Lovable AI**: Default service through the Lovable gateway
+- **ChatGPT**: OpenAI's GPT-3.5 Turbo model
+- **Gemini**: Google's Gemini Pro model (API key required, contact administrator)
+
+### Prompt Engineering
+The application implements advanced prompt engineering with role-based AI instructions tailored to each user action. See [PROMPT_ENGINEERING.md](PROMPT_ENGINEERING.md) for details.
+
 ## How can I edit this code?
 
 There are several ways of editing your application.
@@ -92,8 +112,12 @@ Follow these step-by-step instructions to access and manage your connected Supab
 
 8. To view or edit translation history records, find the relevant table (e.g., "translation_history") and click on it.
 
-9. You may run SQL queries or browse table data directly via the Supabase web interface.
+9. To view or edit grammar check history records, find the "grammar_checker_history" table and click on it.
 
-10. To manage database settings, click on "Settings" in the sidebar and explore connections, API keys, and other configurations.
+10. To manage your API keys, find the "api_keys" table where administrators can configure service keys.
 
-11. When finished, you may log out securely from your dashboard.
+11. You may run SQL queries or browse table data directly via the Supabase web interface.
+
+12. To manage database settings, click on "Settings" in the sidebar and explore connections, API keys, and other configurations.
+
+13. When finished, you may log out securely from your dashboard.

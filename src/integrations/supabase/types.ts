@@ -41,6 +41,33 @@ export type Database = {
         }
         Relationships: []
       }
+      grammar_checker_history: {
+        Row: {
+          created_at: string
+          id: string
+          original_text: string
+          checked_text: string
+          language: string
+          suggestions: Json | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          original_text: string
+          checked_text: string
+          language: string
+          suggestions?: Json | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          original_text?: string
+          checked_text?: string
+          language?: string
+          suggestions?: Json | null
+        }
+        Relationships: []
+      }
       api_keys: {
         Row: {
           id: string

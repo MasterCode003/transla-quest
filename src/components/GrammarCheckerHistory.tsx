@@ -2,6 +2,14 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Trash2, SpellCheck, Clock, Languages, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -12,6 +20,8 @@ type GrammarCheckHistory = Tables<"grammar_checker_history">;
 export const GrammarCheckerHistory = () => {
   const [history, setHistory] = useState<GrammarCheckHistory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     fetchHistory();
@@ -79,24 +89,36 @@ export const GrammarCheckerHistory = () => {
     }
   };
 
-  const clearHistory = async () => {
+  const deleteItem = async (id: string) => {
     try {
-      // Delete all records from the grammar_checker_history table
       const { error } = await supabase
         .from("grammar_checker_history")
         .delete()
-        .gte("created_at", new Date(0).toISOString());
+        .eq("id", id);
 
       if (error) throw error;
       
-      setHistory([]);
-      toast.success("Grammar check history cleared");
+      setHistory((prev) => prev.filter((item) => item.id !== id));
+      toast.success("Item deleted");
+      setDeleteDialogOpen(false);
+      setItemToDelete(null);
     } catch (error: any) {
-      console.error("Error clearing grammar check history:", error);
-      toast.error("Failed to clear grammar check history", {
+      console.error("Error deleting item:", error);
+      toast.error("Failed to delete item", {
         description: error.message || "Please try again later",
         duration: 5000
       });
+    }
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setItemToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (itemToDelete) {
+      deleteItem(itemToDelete);
     }
   };
 
@@ -126,24 +148,14 @@ export const GrammarCheckerHistory = () => {
   }
 
   return (
-    <Card className="bg-card border-border shadow-lg">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg font-medium flex items-center gap-2">
-          <SpellCheck className="h-5 w-5 text-primary" />
-          Grammar Check History
-        </CardTitle>
-        {history.length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={clearHistory}
-            className="h-8 px-2 hover:bg-destructive hover:text-destructive-foreground"
-          >
-            <Trash2 className="h-4 w-4" />
-            <span className="sr-only">Clear history</span>
-          </Button>
-        )}
-      </CardHeader>
+    <>
+      <Card className="bg-card border-border shadow-lg">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-lg font-medium flex items-center gap-2">
+            <SpellCheck className="h-5 w-5 text-primary" />
+            Grammar Check History
+          </CardTitle>
+        </CardHeader>
       <CardContent>
         {history.length === 0 ? (
           <div className="text-center py-8">
@@ -168,11 +180,22 @@ export const GrammarCheckerHistory = () => {
                         {getLanguageName(item.language)}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      <span>
-                        {new Date(item.created_at).toLocaleDateString()}
-                      </span>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        <span>
+                          {new Date(item.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteClick(item.id)}
+                        className="h-7 w-7 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
                     </div>
                   </div>
                   <p className="text-sm font-medium mb-2 line-clamp-2">
@@ -190,5 +213,31 @@ export const GrammarCheckerHistory = () => {
         )}
       </CardContent>
     </Card>
+
+    <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Delete History Item</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete this grammar check history item? This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setDeleteDialogOpen(false);
+              setItemToDelete(null);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button variant="destructive" onClick={handleDeleteConfirm}>
+            Delete
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 };

@@ -342,7 +342,7 @@ Text to check: ${text}`;
                     placeholder="Translation will appear here..."
                     value={processedText}
                     readOnly
-                    className="min-h-[200px] resize-none bg-muted border-border"
+                    className="min-h-[200px] resize-none bg-muted border-border pr-20" // Added padding to the right
                   />
                   {processedText && (
                     <Button
@@ -376,7 +376,7 @@ Text to check: ${text}`;
                     placeholder="Grammar corrections will appear here..."
                     value={processedText}
                     readOnly
-                    className="min-h-[200px] resize-none bg-muted border-border"
+                    className="min-h-[200px] resize-none bg-muted border-border pr-20" // Added padding to the right
                   />
                   {processedText && (
                     <Button

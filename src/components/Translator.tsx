@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ArrowLeftRight, Loader2, SpellCheck, Languages, Copy, Check } from "lucide-react";
+import { ArrowLeftRight, Loader2, SpellCheck, Languages, Copy, Check, History } from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -16,6 +16,8 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Label } from "@/components/ui/label";
+import { HistoryViewer } from "./HistoryViewer";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 export const Translator = () => {
   const navigate = useNavigate();
@@ -35,6 +37,7 @@ export const Translator = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedService, setSelectedService] = useState("lovable");
   const [copied, setCopied] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   // Update URL when mode changes
   useEffect(() => {
@@ -261,206 +264,222 @@ Text to check: ${text}`;
   };
 
   return (
-    <Card className="w-full max-w-5xl mx-auto bg-card shadow-lg border-border">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-2xl font-bold flex items-center gap-2">
-          {mode === 'translate' ? (
-            <>
-              <Languages className="h-6 w-6 text-primary" />
-              Multi-Language Translator
-            </>
-          ) : (
-            <>
-              <SpellCheck className="h-6 w-6 text-primary" />
-              Grammar Checker
-            </>
-          )}
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          {mode === 'translate' 
-            ? "Translate between English, Filipino, and Visayan languages" 
-            : "Check grammar for English, Filipino, and Visayan texts"}
-        </p>
-      </CardHeader>
-      
-      <CardContent className="space-y-6">
-        {/* Mode Toggle */}
-        <div className="flex justify-center">
-          <ToggleGroup 
-            type="single" 
-            value={mode} 
-            onValueChange={(value) => value && setMode(value as 'translate' | 'grammar')}
-            className="gap-2 p-1 bg-muted rounded-lg"
-          >
-            <ToggleGroupItem 
-              value="translate" 
-              aria-label="Translate mode"
-              className="flex items-center gap-2 px-4 py-2 rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-            >
-              <Languages className="h-4 w-4" />
-              Translate
-            </ToggleGroupItem>
-            <ToggleGroupItem 
-              value="grammar" 
-              aria-label="Grammar check mode"
-              className="flex items-center gap-2 px-4 py-2 rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
-            >
-              <SpellCheck className="h-4 w-4" />
-              Grammar Check
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Source Language */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">
-                {mode === 'translate' ? 'Source Language' : 'Language'}
-              </Label>
-              <LanguageSelector
-                value={sourceLanguage}
-                onChange={setSourceLanguage}
-              />
-            </div>
-            <Textarea
-              placeholder={mode === 'translate' ? "Enter text to translate..." : "Enter text to check grammar..."}
-              value={sourceText}
-              onChange={(e) => setSourceText(e.target.value)}
-              className="min-h-[200px] resize-none bg-background border-border focus:border-primary transition-colors"
-            />
-          </div>
-
-          {/* Target Language / Output */}
-          <div className="space-y-3">
+    <>
+      <Card className="w-full max-w-5xl mx-auto bg-card shadow-lg border-border">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-2xl font-bold flex items-center gap-2">
             {mode === 'translate' ? (
               <>
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Target Language</Label>
-                  <LanguageSelector
-                    value={targetLanguage}
-                    onChange={setTargetLanguage}
-                  />
-                </div>
-                <div className="relative">
-                  <Textarea
-                    placeholder="Translation will appear here..."
-                    value={processedText}
-                    readOnly
-                    className="min-h-[200px] resize-none bg-muted border-border pr-20" // Added padding to the right
-                  />
-                  {processedText && (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="absolute top-2 right-2 h-8 px-3"
-                      onClick={handleCopy}
-                    >
-                      {copied ? (
-                        <>
-                          <Check className="h-4 w-4 mr-1" />
-                          Copied
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-4 w-4 mr-1" />
-                          Copy
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </div>
+                <Languages className="h-6 w-6 text-primary" />
+                Multi-Language Translator
               </>
             ) : (
               <>
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Grammar Check Results</Label>
-                </div>
-                <div className="relative">
-                  <Textarea
-                    placeholder="Grammar corrections will appear here..."
-                    value={processedText}
-                    readOnly
-                    className="min-h-[200px] resize-none bg-muted border-border pr-20" // Added padding to the right
-                  />
-                  {processedText && (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="absolute top-2 right-2 h-8 px-3"
-                      onClick={handleCopy}
-                    >
-                      {copied ? (
-                        <>
-                          <Check className="h-4 w-4 mr-1" />
-                          Copied
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-4 w-4 mr-1" />
-                          Copy
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </div>
+                <SpellCheck className="h-6 w-6 text-primary" />
+                Grammar Checker
               </>
             )}
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            {mode === 'translate' 
+              ? "Translate between English, Filipino, and Visayan languages" 
+              : "Check grammar for English, Filipino, and Visayan texts"}
+          </p>
+        </CardHeader>
+        
+        <CardContent className="space-y-6">
+          {/* Mode Toggle */}
+          <div className="flex justify-center">
+            <ToggleGroup 
+              type="single" 
+              value={mode} 
+              onValueChange={(value) => value && setMode(value as 'translate' | 'grammar')}
+              className="gap-2 p-1 bg-muted rounded-lg"
+            >
+              <ToggleGroupItem 
+                value="translate" 
+                aria-label="Translate mode"
+                className="flex items-center gap-2 px-4 py-2 rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+              >
+                <Languages className="h-4 w-4" />
+                Translate
+              </ToggleGroupItem>
+              <ToggleGroupItem 
+                value="grammar" 
+                aria-label="Grammar check mode"
+                className="flex items-center gap-2 px-4 py-2 rounded-md data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+              >
+                <SpellCheck className="h-4 w-4" />
+                Grammar Check
+              </ToggleGroupItem>
+            </ToggleGroup>
           </div>
-        </div>
 
-        {/* Service Selection */}
-        <div className="space-y-2">
-          <Label className="text-sm font-medium">AI Service</Label>
-          <Select value={selectedService} onValueChange={setSelectedService}>
-            <SelectTrigger className="w-full md:w-[200px]">
-              <SelectValue placeholder="Select AI service" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="lovable">Lovable AI</SelectItem>
-              <SelectItem value="openai">ChatGPT</SelectItem>
-              <SelectItem value="gemini">Gemini</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Source Language */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">
+                  {mode === 'translate' ? 'Source Language' : 'Language'}
+                </Label>
+                <LanguageSelector
+                  value={sourceLanguage}
+                  onChange={setSourceLanguage}
+                />
+              </div>
+              <Textarea
+                placeholder={mode === 'translate' ? "Enter text to translate..." : "Enter text to check grammar..."}
+                value={sourceText}
+                onChange={(e) => setSourceText(e.target.value)}
+                className="min-h-[200px] resize-none bg-background border-border focus:border-primary transition-colors"
+              />
+            </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-3 flex-wrap">
-          <Button
-            onClick={handleProcess}
-            disabled={isProcessing}
-            className="flex-1 min-w-[150px] bg-[image:var(--gradient-primary)] hover:opacity-90 transition-opacity text-primary-foreground"
-          >
-            {isProcessing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {mode === 'translate' ? 'Translating...' : 'Checking...'}
-              </>
-            ) : (
-              mode === 'translate' ? 'Translate' : 'Check Grammar'
+            {/* Target Language / Output */}
+            <div className="space-y-3">
+              {mode === 'translate' ? (
+                <>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">Target Language</Label>
+                    <LanguageSelector
+                      value={targetLanguage}
+                      onChange={setTargetLanguage}
+                    />
+                  </div>
+                  <div className="relative">
+                    <Textarea
+                      placeholder="Translation will appear here..."
+                      value={processedText}
+                      readOnly
+                      className="min-h-[200px] resize-none bg-muted border-border pr-20" // Added padding to the right
+                    />
+                    {processedText && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="absolute top-2 right-2 h-8 px-3"
+                        onClick={handleCopy}
+                      >
+                        {copied ? (
+                          <>
+                            <Check className="h-4 w-4 mr-1" />
+                            Copied
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-4 w-4 mr-1" />
+                            Copy
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">Grammar Check Results</Label>
+                  </div>
+                  <div className="relative">
+                    <Textarea
+                      placeholder="Grammar corrections will appear here..."
+                      value={processedText}
+                      readOnly
+                      className="min-h-[200px] resize-none bg-muted border-border pr-20" // Added padding to the right
+                    />
+                    {processedText && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="absolute top-2 right-2 h-8 px-3"
+                        onClick={handleCopy}
+                      >
+                        {copied ? (
+                          <>
+                            <Check className="h-4 w-4 mr-1" />
+                            Copied
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-4 w-4 mr-1" />
+                            Copy
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Service Selection */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">AI Service</Label>
+            <Select value={selectedService} onValueChange={setSelectedService}>
+              <SelectTrigger className="w-full md:w-[200px]">
+                <SelectValue placeholder="Select AI service" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="lovable">Lovable AI</SelectItem>
+                <SelectItem value="openai">ChatGPT</SelectItem>
+                <SelectItem value="gemini">Gemini</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 flex-wrap">
+            <Button
+              onClick={handleProcess}
+              disabled={isProcessing}
+              className="flex-1 min-w-[150px] bg-[image:var(--gradient-primary)] hover:opacity-90 transition-opacity text-primary-foreground"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {mode === 'translate' ? 'Translating...' : 'Checking...'}
+                </>
+              ) : (
+                mode === 'translate' ? 'Translate' : 'Check Grammar'
+              )}
+            </Button>
+            {mode === 'translate' && (
+              <Button
+                variant="outline"
+                onClick={handleSwapLanguages}
+                className="border-border hover:bg-secondary"
+                disabled={isProcessing}
+              >
+                <ArrowLeftRight className="h-4 w-4" />
+                <span className="sr-only">Swap languages</span>
+              </Button>
             )}
-          </Button>
-          {mode === 'translate' && (
             <Button
               variant="outline"
-              onClick={handleSwapLanguages}
+              onClick={handleClear}
               className="border-border hover:bg-secondary"
               disabled={isProcessing}
             >
-              <ArrowLeftRight className="h-4 w-4" />
-              <span className="sr-only">Swap languages</span>
+              Clear
             </Button>
-          )}
-          <Button
-            variant="outline"
-            onClick={handleClear}
-            className="border-border hover:bg-secondary"
-            disabled={isProcessing}
-          >
-            Clear
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+            <Button
+              variant="outline"
+              onClick={() => setShowHistory(true)}
+              className="border-border hover:bg-secondary"
+            >
+              <History className="h-4 w-4 mr-2" />
+              View History
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Dialog open={showHistory} onOpenChange={setShowHistory}>
+        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+          <HistoryViewer onClose={() => setShowHistory(false)} />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

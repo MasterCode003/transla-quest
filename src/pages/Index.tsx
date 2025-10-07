@@ -1,7 +1,5 @@
 import { Languages, SpellCheck } from "lucide-react";
 import { Translator } from "@/components/Translator";
-import { TranslationHistory } from "@/components/TranslationHistory";
-import { GrammarCheckerHistory } from "@/components/GrammarCheckerHistory";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -55,17 +53,8 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
-        <div className="grid lg:grid-cols-[1fr,400px] gap-6">
-          <div className="flex flex-col gap-6">
-            <Translator />
-          </div>
-          <div className="lg:sticky lg:top-24 self-start">
-            <Card className="bg-transparent border-0 shadow-none p-0">
-              <CardContent className="p-0">
-                {isGrammarMode ? <GrammarCheckerHistory /> : <TranslationHistory />}
-              </CardContent>
-            </Card>
-          </div>
+        <div className="max-w-5xl mx-auto">
+          <Translator />
         </div>
       </main>
 

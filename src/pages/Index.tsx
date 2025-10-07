@@ -33,20 +33,7 @@ const Index = () => {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant={isGrammarMode ? "outline" : "default"} asChild className="flex-1">
-                <Link to="/translate">
-                  <Languages className="h-4 w-4 mr-2" />
-                  Translate
-                </Link>
-              </Button>
-              <Button variant={isGrammarMode ? "default" : "outline"} asChild className="flex-1">
-                <Link to="/grammar">
-                  <SpellCheck className="h-4 w-4 mr-2" />
-                  Grammar Check
-                </Link>
-              </Button>
-            </div>
+            {/* Removed Translate and Grammar Check buttons as requested */}
           </div>
         </div>
       </header>

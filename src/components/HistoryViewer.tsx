@@ -414,7 +414,7 @@ export const HistoryViewer = ({ onClose }: { onClose: () => void }) => {
           </div>
 
           {/* History List */}
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea className="flex-1 p-4 overflow-y-auto">
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -434,7 +434,7 @@ export const HistoryViewer = ({ onClose }: { onClose: () => void }) => {
                 )}
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3 pb-4">
                 {filteredHistory.map((item) => (
                   <div
                     key={item.id}

@@ -476,7 +476,7 @@ Text to check: ${text}`;
       </Card>
 
       <Dialog open={showHistory} onOpenChange={setShowHistory}>
-        <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+        <DialogContent className="max-w-4xl p-0 sm:max-w-[80vw] sm:max-h-[80vh] overflow-hidden">
           <HistoryViewer onClose={() => setShowHistory(false)} />
         </DialogContent>
       </Dialog>

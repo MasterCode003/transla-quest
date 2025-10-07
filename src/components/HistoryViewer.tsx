@@ -293,7 +293,7 @@ export const HistoryViewer = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <>
-      <Card className="bg-card border-border shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+      <Card className="bg-card border-border shadow-xl max-w-4xl w-full max-h-[80vh] flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between pb-2 border-b">
           <CardTitle className="text-xl font-medium flex items-center gap-2">
             <History className="h-5 w-5 text-primary" />
@@ -414,7 +414,7 @@ export const HistoryViewer = ({ onClose }: { onClose: () => void }) => {
           </div>
 
           {/* History List */}
-          <ScrollArea className="flex-1 p-4 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto p-4">
             {isLoading ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -434,7 +434,7 @@ export const HistoryViewer = ({ onClose }: { onClose: () => void }) => {
                 )}
               </div>
             ) : (
-              <div className="space-y-3 pb-4">
+              <div className="space-y-4 pb-4">
                 {filteredHistory.map((item) => (
                   <div
                     key={item.id}
@@ -473,12 +473,12 @@ export const HistoryViewer = ({ onClose }: { onClose: () => void }) => {
                     <div className="space-y-2 text-sm">
                       {item.type === "translation" ? (
                         <>
-                          <div className="bg-background p-2 rounded border">
+                          <div className="bg-background p-3 rounded border">
                             <p className="line-clamp-2">
                               {item.source_text}
                             </p>
                           </div>
-                          <div className="bg-background p-2 rounded border">
+                          <div className="bg-background p-3 rounded border">
                             <p className="line-clamp-2">
                               {item.translated_text}
                             </p>
@@ -486,12 +486,12 @@ export const HistoryViewer = ({ onClose }: { onClose: () => void }) => {
                         </>
                       ) : (
                         <>
-                          <div className="bg-background p-2 rounded border">
+                          <div className="bg-background p-3 rounded border">
                             <p className="line-clamp-2">
                               {item.original_text}
                             </p>
                           </div>
-                          <div className="bg-background p-2 rounded border">
+                          <div className="bg-background p-3 rounded border">
                             <p className="line-clamp-3">
                               {item.checked_text}
                             </p>
@@ -503,7 +503,7 @@ export const HistoryViewer = ({ onClose }: { onClose: () => void }) => {
                 ))}
               </div>
             )}
-          </ScrollArea>
+          </div>
         </CardContent>
       </Card>
 

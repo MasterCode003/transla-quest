@@ -422,7 +422,6 @@ Text to check: ${text}`;
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="lovable">Lovable AI</SelectItem>
-                <SelectItem value="openai">ChatGPT</SelectItem>
                 <SelectItem value="gemini">Gemini</SelectItem>
               </SelectContent>
             </Select>
